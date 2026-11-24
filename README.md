@@ -10,7 +10,9 @@ Everything runs in the browser with free, open data. No API keys required.
 - Explore the location on a **MapLibre + OpenFreeMap** map; save places in your browser.
 - Pull nearby photos from **Wikipedia** and **Wikimedia Commons** around the coordinates.
 - Optionally add a free **Mapillary** access token for street-level panoramas. The token is stored only in `localStorage`.
-- Open the selected photo in fullscreen "window" mode: frame, mullions, curtains, glass glare, mouse parallax, clock and photo credit.
+- Open the selected photo in fullscreen "window" mode: frame, mullions, curtains, glass glare, a desk with books, mug, plant, lamp and analog/digital clock, plus photo credit.
+- The image fits by default; zoom with buttons or scroll wheel, drag to pan, switch between Fit and Fill, and reset the view. Keyboard: `+`, `-`, `0`, arrow keys, `Esc`.
+- A real local clock for the place (offline timezone lookup via `tz-lookup`) plus lighting that changes with the local hour: morning warmth, afternoon daylight, golden hour and a night lamp.
 - If no photo exists nearby, capture the live map as the window view instead.
 
 ## Run locally
