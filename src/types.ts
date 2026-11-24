@@ -6,7 +6,7 @@ export interface Place {
   lon: number;
 }
 
-export type ImageSource = 'wikipedia' | 'commons' | 'mapillary' | 'map';
+export type ImageSource = 'wikipedia' | 'commons' | 'mapillary' | 'karta' | 'map';
 
 export interface ViewImage {
   id: string;

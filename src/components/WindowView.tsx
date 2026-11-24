@@ -129,6 +129,14 @@ export function WindowView({ place, images, index, onIndexChange, onClose }: Win
   } as CSSProperties;
 
   const phaseIcon = clock.phase === 'night' ? 'moon' : clock.phase === 'morning' ? 'sunrise' : 'sun';
+  const sourceLabel =
+    image.source === 'karta' || image.source === 'mapillary'
+      ? 'Street level'
+      : image.source === 'map'
+        ? 'Map view'
+        : image.source === 'wikipedia'
+          ? 'Wikipedia'
+          : 'Commons';
 
   return (
     <div className={`window-overlay phase-${clock.phase}`} role="dialog" aria-modal="true" aria-label={`Window view of ${place.name}`}>
@@ -278,6 +286,7 @@ export function WindowView({ place, images, index, onIndexChange, onClose }: Win
           <span>{place.detail}</span>
         </div>
         <div className="caption-credit">
+          <span className="source-badge">{sourceLabel}</span>
           <span className="drag-hint">Drag to move · Scroll to zoom</span>
           {image.credit}
           {image.link && (

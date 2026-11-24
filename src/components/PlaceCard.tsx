@@ -10,6 +10,8 @@ interface PlaceCardProps {
   onActiveChange: (index: number) => void;
   onOpen: (index: number) => void;
   onOpenMap: () => void;
+  streetIndex: number;
+  onOpenStreet: () => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
 }
@@ -23,6 +25,8 @@ export function PlaceCard({
   onActiveChange,
   onOpen,
   onOpenMap,
+  streetIndex,
+  onOpenStreet,
   isFavorite,
   onToggleFavorite,
 }: PlaceCardProps) {
@@ -77,6 +81,16 @@ export function PlaceCard({
         )}
       </div>
 
+      {streetIndex >= 0 && (
+        <button type="button" className="street-button" onClick={onOpenStreet}>
+          <Icon name="pin" size={16} />
+          Open street view
+          <span>
+            {images.filter((item) => item.source === 'karta' || item.source === 'mapillary').length} nearby
+          </span>
+        </button>
+      )}
+
       {images.length > 0 && (
         <div className="card-gallery">
           <div className="thumbs">
@@ -84,7 +98,9 @@ export function PlaceCard({
               <button
                 type="button"
                 key={item.id}
-                className={`thumb ${activeIndex === index ? 'is-active' : ''}`}
+                className={`thumb ${activeIndex === index ? 'is-active' : ''} ${
+                  item.source === 'karta' || item.source === 'mapillary' ? 'thumb-street' : ''
+                }`}
                 style={{ backgroundImage: `url("${item.url}")` }}
                 onClick={() => onActiveChange(index)}
                 aria-label={`View image ${index + 1} of ${images.length}`}

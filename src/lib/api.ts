@@ -120,6 +120,72 @@ async function commonsImages(place: Place, signal?: AbortSignal): Promise<ViewIm
     .slice(0, 10);
 }
 
+function decodeKartaHost(url?: string): string {
+  try {
+    const encoded = url?.split('/pr:sharp/')[1];
+    return encoded ? new URL(atob(encoded)).hostname : '';
+  } catch {
+    return '';
+  }
+}
+
+function imageLoads(url: string, signal?: AbortSignal): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (signal?.aborted) return resolve(false);
+    const image = new Image();
+    let finished = false;
+    let timer = 0;
+    const finish = (ok: boolean) => {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timer);
+      image.onload = null;
+      image.onerror = null;
+      resolve(ok);
+    };
+    image.onload = () => finish(true);
+    image.onerror = () => finish(false);
+    image.src = url;
+    timer = window.setTimeout(() => finish(false), 6000);
+    signal?.addEventListener('abort', () => finish(false), { once: true });
+  });
+}
+
+interface KartaPhoto {
+  id: string;
+  imageLthUrl?: string;
+  fileurlLTh?: string;
+  shotDate?: string;
+  dateAdded?: string;
+  sequenceId?: string;
+}
+
+async function kartaImages(place: Place, signal?: AbortSignal): Promise<ViewImage[]> {
+  const url = `https://api.kartaview.org/2.0/photo/?lat=${place.lat}&lng=${place.lon}&radius=500`;
+  const data = await fetchJson<{ result?: { data?: KartaPhoto[] } }>(url, signal);
+
+  const candidates = (data.result?.data ?? [])
+    .filter((photo) => Boolean(photo.imageLthUrl))
+    .filter((photo) => !decodeKartaHost(photo.imageLthUrl).includes('storage9'))
+    .slice(0, 16);
+  const checked = await Promise.all(
+    candidates.map(async (photo) => ({ photo, ok: await imageLoads(photo.imageLthUrl!, signal) })),
+  );
+
+  return checked
+    .filter((item) => item.ok)
+    .slice(0, 12)
+    .map(({ photo }) => ({
+      id: `karta-${photo.id}`,
+      url: photo.imageLthUrl!,
+      credit: 'KartaView contributor',
+      source: 'karta' as const,
+      license: 'CC BY-SA',
+      link: `https://kartaview.org/photo/${photo.id}`,
+      description: `Street-level · ${(photo.shotDate || photo.dateAdded || '').slice(0, 10)}`,
+    }));
+}
+
 async function mapillaryImages(
   place: Place,
   token: string,
@@ -157,8 +223,9 @@ export async function fetchPlaceImages(
   signal?: AbortSignal,
   mapillaryToken?: string,
 ): Promise<ViewImage[]> {
-  const requests = [wikipediaImage(place, signal), commonsImages(place, signal)];
+  const requests = [wikipediaImage(place, signal), kartaImages(place, signal)];
   if (mapillaryToken?.trim()) requests.push(mapillaryImages(place, mapillaryToken, signal));
+  requests.push(commonsImages(place, signal));
 
   const settled = await Promise.allSettled(requests);
   const images: ViewImage[] = [];

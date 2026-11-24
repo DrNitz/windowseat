@@ -205,7 +205,7 @@ export function SearchPanel({
           </summary>
           <p>
             Add a free <a href="https://www.mapillary.com/developer" target="_blank" rel="noreferrer">Mapillary access token</a>{' '}
-            to include street-level panoramas. Your token stays in this browser.
+            to include extra street-level panoramas. It must be a Graph API access token (a long string), not a numeric ID. Your token stays in this browser.
           </p>
           <input
             type="password"

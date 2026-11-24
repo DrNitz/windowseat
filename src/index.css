@@ -1628,6 +1628,59 @@ button {
   }
 }
 
+.street-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 0 14px;
+  border: 1px solid rgba(227, 180, 100, 0.35);
+  border-radius: 10px;
+  background: rgba(227, 180, 100, 0.1);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 160ms var(--ease), transform 160ms var(--ease);
+}
+
+.street-button:hover {
+  background: rgba(227, 180, 100, 0.2);
+  transform: translateY(-1px);
+}
+
+.street-button span {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.thumb {
+  position: relative;
+}
+
+.thumb-street::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 2px rgba(10, 15, 22, 0.65);
+}
+
+.source-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
 @media (max-width: 700px) {
   .window-tools {
     flex-direction: column;

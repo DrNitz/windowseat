@@ -149,6 +149,7 @@ export default function App() {
   }, [selected]);
 
   const isFavorite = selected ? favorites.some((item) => item.id === selected.id) : false;
+  const streetIndex = images.findIndex((item) => item.source === 'karta' || item.source === 'mapillary');
 
   return (
     <div className="app-shell">
@@ -216,6 +217,13 @@ export default function App() {
               setWindowOpen(true);
             }}
             onOpenMap={openMapWindow}
+            streetIndex={streetIndex}
+            onOpenStreet={() => {
+              if (streetIndex >= 0) {
+                setActiveIndex(streetIndex);
+                setWindowOpen(true);
+              }
+            }}
             isFavorite={isFavorite}
             onToggleFavorite={() => toggleFavorite(selected)}
           />
