@@ -27,7 +27,14 @@ npm run build
 npm run preview
 ```
 
-Deploy the `dist` folder to Netlify, Vercel or Cloudflare Pages. No backend needed.
+## Deploy
+
+GitHub Pages is already configured. Every push to `main` builds and publishes automatically via
+`.github/workflows/deploy.yml`. Enable it once under **Settings → Pages → Source: GitHub Actions**,
+then open <https://drnitz.github.io/windowseat/>.
+
+The production build uses the `/windowseat/` base path. For a custom domain, change `base` in
+`vite.config.ts` to `/` and add a CNAME file. No backend needed.
 
 ## Cost
 
