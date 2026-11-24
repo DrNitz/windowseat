@@ -191,31 +191,57 @@ async function mapillaryImages(
   token: string,
   signal?: AbortSignal,
 ): Promise<ViewImage[]> {
-  const spread = 0.012;
-  const bbox = [
-    place.lon - spread,
-    place.lat - spread * 0.7,
-    place.lon + spread,
-    place.lat + spread * 0.7,
-  ].join(',');
-  const url =
-    `https://graph.mapillary.com/images?fields=id,thumb_2048_url,captured_at` +
-    `&bbox=${encodeURIComponent(bbox)}&limit=20&access_token=${encodeURIComponent(token)}`;
-  const data = await fetchJson<{
-    data?: Array<{ id: string; thumb_2048_url?: string; captured_at?: string }>;
-  }>(url, signal);
+  const spread = 0.0025;
+  const offsets: Array<[number, number]> = [
+    [0, 0],
+    [0.006, 0],
+    [-0.006, 0],
+    [0, 0.004],
+    [0, -0.004],
+  ];
+  const urls = offsets.map(([lonOffset, latOffset]) => {
+    const lon = place.lon + lonOffset;
+    const lat = place.lat + latOffset;
+    const bbox = [lon - spread, lat - spread * 0.7, lon + spread, lat + spread * 0.7].join(',');
+    return (
+      `https://graph.mapillary.com/images?fields=id,thumb_2048_url,captured_at` +
+      `&bbox=${encodeURIComponent(bbox)}&limit=5&access_token=${encodeURIComponent(token)}`
+    );
+  });
 
-  return (data.data ?? [])
+  const responses = await Promise.allSettled(
+    urls.map((url) =>
+      fetchJson<{
+        data?: Array<{ id: string; thumb_2048_url?: string; captured_at?: number | string }>;
+      }>(url, signal),
+    ),
+  );
+  const items = responses.flatMap((response) =>
+    response.status === 'fulfilled' ? (response.value.data ?? []) : [],
+  );
+  const unique = new Map(items.map((item) => [item.id, item]));
+
+  return [...unique.values()]
     .filter((item) => Boolean(item.thumb_2048_url))
-    .map((item) => ({
-      id: `mapillary-${item.id}`,
-      url: item.thumb_2048_url!,
-      credit: 'Mapillary contributor',
-      source: 'mapillary' as const,
-      license: 'CC BY-SA',
-      link: `https://www.mapillary.com/app/?pKey=${item.id}`,
-      description: item.captured_at ? `Captured ${item.captured_at.slice(0, 10)}` : 'Street-level image',
-    }));
+    .slice(0, 12)
+    .map((item) => {
+      const captured = item.captured_at;
+      const date = captured
+        ? new Date(typeof captured === 'number' ? captured : Date.parse(captured))
+        : null;
+      return {
+        id: `mapillary-${item.id}`,
+        url: item.thumb_2048_url!,
+        credit: 'Mapillary contributor',
+        source: 'mapillary' as const,
+        license: 'CC BY-SA',
+        link: `https://www.mapillary.com/app/?pKey=${item.id}`,
+        description:
+          date && !Number.isNaN(date.getTime())
+            ? `Captured ${date.toISOString().slice(0, 10)}`
+            : 'Street-level image',
+      };
+    });
 }
 
 export async function fetchPlaceImages(

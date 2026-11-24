@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Map as MapLibreMap } from 'maplibre-gl';
 import { fetchPlaceImages, searchPlaces } from './lib/api';
+import { MAPILLARY_TOKEN } from './config';
 import type { Place, ViewImage } from './types';
 import { MapView } from './components/MapView';
 import { SearchPanel } from './components/SearchPanel';
@@ -36,7 +37,7 @@ export default function App() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [windowOpen, setWindowOpen] = useState(false);
   const [favorites, setFavorites] = useState<Place[]>(loadFavorites);
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) ?? '');
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) ?? MAPILLARY_TOKEN);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const mapInstance = useRef<MapLibreMap | null>(null);
